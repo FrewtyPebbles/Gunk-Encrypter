@@ -6,6 +6,7 @@ with a single character, making sure that there are as many sections as there ar
 
 
 import random
+from itertools import islice
 
 
 Characters = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z','a','b','c','d','e','f','g','h',
@@ -38,7 +39,40 @@ def createKey():
 		del disposeableChars[randomIndex]
 		
 	return KeyForUser
+
+def randomChunk(li, min_chunk=1, max_chunk=3):
+	it = iter(li)
+	while True:
+		nxt = list(islice(it,randint(min_chunk,max_chunk)))
+		if nxt:
+			yield nxt
+		else:
+			break
+
+def groupEncrypt(stringToEncrypt):
+	#assigns characters for random groups of characters
+	encryptedString = stringToEncrypt
+	encryptedChars = []
+	groupKey = []
+	#Character to start on
+	currentCharacter = 0
 	
+	ammountOfChar = len(encryptedChars)
+	
+	if ammountOfChar > len(Characters):
+		minSizeOfArrayChunk = ammountOfChar/len(Characters)
+	else:
+		minSizeOfArrayChunk = 1
+	for i in encryptedString:
+		encryptedChars.append(i)
+	while ammountOfChar > 0:
+		randomChunk(encryptedChars, minSizeOfArrayChunk, minSizeOfArrayChunk+5)
+	for i in range(0, len(encryptedChars)):
+		#grab random letter from tempCharacters array and append to group key then
+		#remove char from tempCharacters array
+		groupKey.append()
+	return { data:convertToString(encryptedChars) key:groupKey }
+
 def encryptString(stringToEncrypt):
 	#parses through string and replaces characters based on the key
 	encryptedString = stringToEncrypt
