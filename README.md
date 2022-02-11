@@ -1,2 +1,3 @@
-# William Encrypter
- An encrypter for text based data.
+# Gunk Encrypter
+## An encrypter for **UTF-8** text based data.
+
