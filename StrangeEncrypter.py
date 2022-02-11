@@ -1,15 +1,17 @@
-#STRANGE ENCRYPT
+#Encrypter
 
-
-"""choose random ranges of indexes within an already random character for character encrypted string then take those ranges and represent them 
-with a single character, making sure that there are as many sections as there are possible characters"""
-
+#
+#       STRANGE ENCRYPTER
+#
+#           By William Lim
+#
 
 import random
 from itertools import islice
+import tkinter as tk
 
 
-Characters = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z','a','b','c','d','e','f','g','h',
+PotentialChars = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z','a','b','c','d','e','f','g','h',
 'i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z',' ','.',',','1','2','3','4','5','6','7','8','9','0']
 
 
@@ -25,9 +27,9 @@ def convertToString(charArray):
 	return newString
 
 def createKey():
-	#Chooses random characters to replace each character with in the key
-	#removes the characters from disposeableChars to make sure characters are not used more than once
-	disposeableChars = Characters;
+	#Chooses random PotentialChars to replace each character with in the key
+	#removes the PotentialChars from disposeableChars to make sure PotentialChars are not used more than once
+	disposeableChars = PotentialChars;
 	KeyForUser = ""
 	
 	for i in range(0,len(Key)):
@@ -42,39 +44,64 @@ def createKey():
 
 def randomChunk(li, min_chunk=1, max_chunk=3):
 	it = iter(li)
+	theList = []
 	while True:
-		nxt = list(islice(it,randint(min_chunk,max_chunk)))
+		nxt = list(islice(it,random.randint(min_chunk,max_chunk)))
 		if nxt:
-			yield nxt
+			theList.append( nxt )
 		else:
-			break
+			newList = []
+			for i in range(0, len(theList)):
+				listSegment = ""
+				for j in theList[i]:
+					listSegment += j
+				newList.append(listSegment)
+			return newList
 
 def groupEncrypt(stringToEncrypt):
-	#assigns characters for random groups of characters
+	PotentialChars = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z','a','b','c','d','e','f','g','h',
+'i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z',' ','.',',','1','2','3','4','5','6','7','8','9','0']
+	#assigns PotentialChars for random groups of PotentialChars
 	encryptedString = stringToEncrypt
 	encryptedChars = []
+	separatedEncryption = []
 	groupKey = []
 	#Character to start on
 	currentCharacter = 0
 	
-	ammountOfChar = len(encryptedChars)
-	
-	if ammountOfChar > len(Characters):
-		minSizeOfArrayChunk = ammountOfChar/len(Characters)
-	else:
-		minSizeOfArrayChunk = 1
+	tempPotentialChars = PotentialChars
+	print(tempPotentialChars)
 	for i in encryptedString:
 		encryptedChars.append(i)
-	while ammountOfChar > 0:
-		randomChunk(encryptedChars, minSizeOfArrayChunk, minSizeOfArrayChunk+5)
-	for i in range(0, len(encryptedChars)):
-		#grab random letter from tempCharacters array and append to group key then
-		#remove char from tempCharacters array
-		groupKey.append()
-	return { data:convertToString(encryptedChars) key:groupKey }
+	ammountOfChar = len(encryptedChars)
+	if ammountOfChar >= len(PotentialChars):
+		minSizeOfArrayChunk = round(ammountOfChar/len(PotentialChars)) + 1
+	else:
+		minSizeOfArrayChunk = 0
+	print(minSizeOfArrayChunk)
+	newEncryptedChars = randomChunk(encryptedString, minSizeOfArrayChunk, minSizeOfArrayChunk+5)
+	print(newEncryptedChars)
+	for i in range(0, len(newEncryptedChars)):
+		#grab random letter from tempPotentialChars array and append to group key then
+		#remove char from tempPotentialChars array
+		if i < len(newEncryptedChars):
+			separatedEncryption += newEncryptedChars[i] + "©"
+		else:
+			separatedEncryption += newEncryptedChars[i]
+		characterIndex = round(random.randrange(0,len(tempPotentialChars)))
+		print(characterIndex)
+		print(len(tempPotentialChars)-1)
+		groupKey.append(tempPotentialChars[characterIndex])
+		del tempPotentialChars[characterIndex]
+	d  = {
+		'key': convertToString(separatedEncryption),
+		'data': convertToString(groupKey)
+	}
+	return d
 
 def encryptString(stringToEncrypt):
-	#parses through string and replaces characters based on the key
+	#parses through string and replaces PotentialChars based on the key
+	theKey = createKey()
 	encryptedString = stringToEncrypt
 	encryptedChars = []
 	for i in encryptedString:
@@ -88,31 +115,126 @@ def encryptString(stringToEncrypt):
 				break
 			#else check next letter in key/continue
 			
-	return convertToString(encryptedChars)
+	groupEnc = groupEncrypt(convertToString(encryptedChars))
+	d = {
+		'key': groupEnc.get('key') + "Æ" + theKey,
+		'data': groupEnc.get('data')
+	}
+	return d
 	
 
 def decryptString(stringToDecrypt, UserKey):
-	#parses through string and replaces characters based on the key
-	decryptedString = stringToDecrypt
+	global PotentialChars
+	#parses through string and replaces PotentialChars based on the key
+	encKeys = UserKey.split("Æ")
+	#group parse
+	groupKey = encKeys[0].split("©")
+	groupDecrypted = ""
+	for i in range(0, len(stringToDecrypt)):
+		groupDecrypted += groupKey[i]
+	#single parse
+	decryptedString = groupDecrypted
 	decryptedChars = []
 	for i in decryptedString:
 		decryptedChars.append(i)
-	for i in range(0, len(stringToDecrypt)):
-		for j in range(0,len(Characters)):
+	for i in range(0, len(decryptedString)):
+		for j in range(0,len(PotentialChars)):
 		
-			if stringToDecrypt[i] == UserKey[j]:
+			if decryptedString[i] == encKeys[1][j]:
 			
-				decryptedChars[i] = Characters[j]
+				decryptedChars[i] = PotentialChars[j]
 				break
 			#else check next letter in key/continue
 	return convertToString(decryptedChars)
 
-#MAIN
-print("Would you like to encrypt or decrypt a file (E/D):")
+#GUI
+
+root = tk.Tk()
+
+EnF1 = tk.StringVar
+
+DeF1 = tk.StringVar
+DeF2 = tk.StringVar
+
+root.title(" ENCRYPTER ")
+
+
+Title1 = tk.Frame(root)
+frm = tk.Frame(root)
+Title2 = tk.Frame(root)
+frm2 = tk.Frame(root)
+frm3 = tk.Frame(root)
+
+Title1.grid()
+frm.grid()
+Title2.grid()
+frm2.grid()
+frm3.grid()
+
+tk.Label(Title1, text="Encrypter").grid(column=0, row=0)
+tk.Label(frm, text="File path:").grid(column=0, row=0)
+T = tk.Entry(frm, textvariable = EnF1, width = 52)
+T.grid(column=1, row=0)
+tk.Label(Title2, text="Decrypter").grid(column=0, row=0)
+tk.Label(frm2, text="File path:").grid(column=0, row=0)
+tk.Label(frm2, text=" Key path:").grid(column=0, row=1)
+T2 = tk.Entry(frm2, textvariable = DeF1, width = 52)
+T3 = tk.Entry(frm2, textvariable = DeF2, width = 52)
+T2.grid(column=1, row=0)
+T3.grid(column=1, row=1)
+
+def encryptPress():
+
+	fileContent = open(T.get())
+
+	newEncryptedFile = encryptString(fileContent.read())
+
+	fileContent.close()
+
+	newFileName = T.get().split('.')
+
+	encryptedFile = open((newFileName[0] + "++" + newFileName[1] + ".gunk"), 'w')
+
+	encryptedFile.write(newEncryptedFile.get('data'))
+
+	encryptedFile.close()
+	
+	encryptionKey = open((newFileName[0] + "++" + newFileName[1] + ".gunkkey"), 'w')
+
+	encryptionKey.write(newEncryptedFile.get('key'))
+
+	encryptionKey.close()
+
+	
+def decryptPress():
+	encryptedFileRead = open(T2.get(), 'r')
+	encryptedFileKeyRead = open(T3.get(), 'r')
+
+	newEncryptedString = encryptedFileRead.read()
+	newEncryptedKeyString = encryptedFileKeyRead.read()
+
+	newDecryptedString = decryptString(newEncryptedString, newEncryptedKeyString)
+	
+	encryptedFileRead.close()
+	encryptedFileKeyRead.close()
+	
+	fileNameWithExtension = T2.get().split('.')
+	fileNameParts = fileNameWithExtension[0].split("++")
+	newFileName = fileNameParts[0] + "." + fileNameParts[1]
+	
+	decryptedFile = open(newFileName, 'w')
+
+	decryptedFile.write(newDecryptedString)
+
+	decryptedFile.close()
+
+tk.Button(frm, text="Encrypt", command=encryptPress).grid(column=2, row=0)
+tk.Button(frm2, text="Decrypt", command=decryptPress).grid(column=2, row=0)
+
+tk.Button(frm3, text="Quit", command=root.destroy).grid(column=1, row=0)
+root.mainloop()
+"""print("Would you like to encrypt or decrypt a file (E/D):")
 if input() == "E":
-	print("Your Encryption Key:")
-	print()
-	print(str(createKey()))
 	print()
 	print("Enter a file to encrypt... ")
 
@@ -125,34 +247,48 @@ if input() == "E":
 	fileContent.close()
 
 	print()
-	print("Your Encrypted String: ", str(newEncryptedFile))
+	print("Your Encrypted String: ", str(newEncryptedFile.get('data')))
 
 	newFileName = fileName.split('.')
 
 	encryptedFile = open((newFileName[0] + "++" + newFileName[1] + ".gunk"), 'w')
 
-	encryptedFile.write(newEncryptedFile)
+	encryptedFile.write(newEncryptedFile.get('data'))
 
 	encryptedFile.close()
 	
+	encryptionKey = open((newFileName[0] + "++" + newFileName[1] + ".gunkkey"), 'w')
+
+	encryptionKey.write(newEncryptedFile.get('key'))
+
+	encryptionKey.close()
+	
 	print()
 	print("Encryption complete!")
+	#print("Your Encryption Key:")
+	#print()
+	#print(str(newEncryptedFile.get('key')))
+	print()
+	input("Press enter to continue...")
 else:
 	print()
-	print("Enter a file to decrypt:")
+	print("Enter the path for the file you'd like to decrypt:")
 	fileName = input()
 	
 	print()
-	print("Enter your decryption key:")
+	print("Enter your decryption key file directory:")
 	decryptionKey = input()
 	
 	encryptedFileRead = open(fileName, 'r')
+	encryptedFileKeyRead = open(decryptionKey, 'r')
 
 	newEncryptedString = encryptedFileRead.read()
+	newEncryptedKeyString = encryptedFileKeyRead.read()
 
-	newDecryptedString = decryptString(newEncryptedString, decryptionKey)
+	newDecryptedString = decryptString(newEncryptedString, newEncryptedKeyString)
 	
 	encryptedFileRead.close()
+	encryptedFileKeyRead.close()
 	
 	print()
 	print("Your Decrypted String: ", str(newDecryptedString))
@@ -169,3 +305,5 @@ else:
 	
 	print()
 	print("Decryption complete!")
+	print()
+	input("Press enter to continue...")"""
