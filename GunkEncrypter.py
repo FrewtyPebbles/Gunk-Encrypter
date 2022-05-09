@@ -1,7 +1,7 @@
 #Encrypter
 
 #
-#       GUNK ENCRYPTER VER 2.1.0
+#       GUNK ENCRYPTER VER 0.2.3
 #
 #           By William Lim
 #
